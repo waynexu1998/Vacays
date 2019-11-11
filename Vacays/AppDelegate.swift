@@ -12,13 +12,28 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
 
     var window: UIWindow?
-
+    var vacays: Vacays?
+    
+    lazy var fileURL: URL = {
+        let documentsDir =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return documentsDir.appendingPathComponent("VacaysFile", isDirectory: false)
+    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        loadData()
         let splitViewController = window!.rootViewController as! UISplitViewController
-        let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
-        navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
+        let navigationController = splitViewController.viewControllers.first as! UINavigationController
+        
+        if let masterViewController = navigationController.topViewController as?
+            MasterViewController {
+            masterViewController.vacays = vacays
+        }
+        // detail
+        let detailNavController = splitViewController.viewControllers.last as!
+        UINavigationController
+        detailNavController.topViewController!.navigationItem.leftBarButtonItem =
+            splitViewController.displayModeButtonItem
         splitViewController.delegate = self
         return true
     }
@@ -55,6 +70,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             return true
         }
         return false
+    }
+    
+    func loadData() {
+        
+        if !FileManager.default.fileExists(atPath: fileURL.path) {
+            vacays = Vacays()
+            return
+        }
+        
+        if let jsondata = FileManager.default.contents(atPath: fileURL.path) {
+            let decoder = JSONDecoder()
+            do {
+                let model = try decoder.decode(Vacays.self, from: jsondata)
+                vacays = model
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        } else {
+            fatalError("No data at \(fileURL.path)!")
+        }
+    }
+    
+    func saveData() {
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        }
+        
+        if let encodedData = try? JSONEncoder().encode(vacays) {
+            FileManager.default.createFile(atPath: fileURL.path, contents: encodedData, attributes: nil)
+        } else {
+            fatalError("Couldn't write data!")
+        }
     }
 
 }
