@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 
+
 class DetailViewController: UIViewController {
     @IBOutlet weak var detailImage: UIImageView!
     @IBOutlet weak var detailTitle: UILabel!
