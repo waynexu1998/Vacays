@@ -19,6 +19,7 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var detailDP: UIDatePicker!
     
     var index: Int?
+    var vacays: Vacays?
     
     override func viewDidLoad() {
         super.viewDidLoad()
